@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saki Cho – Video Editor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #FDF0F0;
+    --surface:  #FFF8F8;
+    --ink:      #2A1F1F;
+    --mid:      #A07878;
+    --faint:    #F0D8D8;
+    --accent:   #2A1F1F;
+    --radius:   8px;
+    font-size: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 56px 40px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--faint);
+    gap: 24px;
+  }
+  .header-left h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .header-left p {
+    font-size: 0.85rem;
+    color: var(--mid);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+  .header-right {
+    font-size: 0.8rem;
+    color: var(--mid);
+    text-align: right;
+    line-height: 1.9;
+  }
+  .header-right a {
+    color: var(--mid);
+    text-decoration: none;
+  }
+  .header-right a:hover { color: var(--ink); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 48px 0 20px;
+  }
+
+  /* ── VIDEO GRID ── */
+  .grid {
+    display: grid;
+    gap: 14px;
+  }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+  }
+
+  /* iframe wrapper — preserves 16:9 */
+  .thumb {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+    pointer-events: none; /* hover on card, not iframe */
+  }
+  .thumb iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+  }
+
+  /* vertical (Shorts) */
+  .thumb-v {
+    position: relative;
+    width: 100%;
+    padding-top: 177.78%; /* 9:16 */
+    background: #000;
+    pointer-events: none;
+  }
+  .thumb-v iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+  }
+
+  .card-body {
+    padding: 14px 16px 16px;
+  }
+  .card-body h3 {
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .card-body p {
+    font-size: 0.78rem;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  .tag {
+    font-size: 0.68rem;
+    color: var(--mid);
+    background: var(--bg);
+    border-radius: 100px;
+    padding: 2px 9px;
+    letter-spacing: 0.02em;
+  }
+
+  /* click overlay to enable play */
+  .card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* ── PROFILE STRIP ── */
+  .profile-strip {
+    margin-top: 60px;
+    padding: 28px 32px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+  .profile-strip h2 {
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .profile-strip p {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.7;
+  }
+  .profile-col { flex: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    header { flex-direction: column; align-items: flex-start; padding: 36px 20px 28px; }
+    main { padding: 0 20px 60px; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .profile-strip { flex-direction: column; gap: 20px; }
+  }
+  @media (max-width: 480px) {
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>趙 早紀 <span style="font-weight:300;font-size:1.1rem;color:var(--mid);">/ Saki Cho</span></h1>
+    <p>Video Editor &nbsp;·&nbsp; Short Movie Specialist &nbsp;·&nbsp; 7 years</p>
+  </div>
+  <div class="header-right">
+    <a href="mailto:saki.cho.uriryu@gmail.com">saki.cho.uriryu@gmail.com</a><br>
+    <a href="https://www.youtube.com/@tokyogalmegi" target="_blank">@tokyogalmegi</a><br>
+    <a href="https://www.youtube.com/@ashiseka" target="_blank">@ashiseka</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── LONG-FORM ── -->
+  <p class="section-label">Long-form</p>
+  <div class="grid grid-3">
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=V85NHwjDwOw" target="_blank">
+      <div class="thumb">
+        <iframe src="https://www.youtube.com/embed/V85NHwjDwOw?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>足つぼ肩こり改善動画</h3>
+        <p>10:48</p>
+        <div class="tag-row">
+          <span class="tag">医療・健康</span>
+          <span class="tag">BGM挿入</span>
+          <span class="tag">カット編集</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=-UymJ3_zib8" target="_blank">
+      <div class="thumb">
+        <iframe src="https://www.youtube.com/embed/-UymJ3_zib8?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>朝倉海選手 対談動画</h3>
+        <p>27:18</p>
+        <div class="tag-row">
+          <span class="tag">対談</span>
+          <span class="tag">長尺</span>
+          <span class="tag">スポーツ</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=TEXzpJtBlHc" target="_blank">
+      <div class="thumb">
+        <iframe src="https://www.youtube.com/embed/TEXzpJtBlHc?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>KBO野球エンタメ動画</h3>
+        <p>12:01</p>
+        <div class="tag-row">
+          <span class="tag">レビュー</span>
+          <span class="tag">エンタメ</span>
+          <span class="tag">韓国コンテンツ</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── SHORTS ── -->
+  <p class="section-label">Shorts</p>
+  <div class="grid grid-2" style="grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px;">
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=12LSSpn5PU0" target="_blank">
+      <div class="thumb-v">
+        <iframe src="https://www.youtube.com/embed/12LSSpn5PU0?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>ヘルニア改善セッション</h3>
+        <p>1:51</p>
+        <div class="tag-row">
+          <span class="tag">医療系</span>
+          <span class="tag">短尺</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=qpvWInv3SAo" target="_blank">
+      <div class="thumb-v">
+        <iframe src="https://www.youtube.com/embed/qpvWInv3SAo?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>職業当てクイズ</h3>
+        <p>1:21</p>
+        <div class="tag-row">
+          <span class="tag">クイズ</span>
+          <span class="tag">エンタメ</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card card-link" href="https://www.youtube.com/watch?v=6o3LuErbnQw" target="_blank">
+      <div class="thumb-v">
+        <iframe src="https://www.youtube.com/embed/6o3LuErbnQw?mute=1" loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="card-body">
+        <h3>応援歌クイズ</h3>
+        <p>0:28</p>
+        <div class="tag-row">
+          <span class="tag">参加型</span>
+          <span class="tag">超短尺</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── CONTACT ── -->
+  <div class="profile-strip" style="justify-content:center;text-align:center;">
+    <div class="profile-col" style="flex:unset;">
+      <h2>Contact</h2>
+      <p>
+        <a href="mailto:saki.cho.uriryu@gmail.com" style="color:var(--ink);text-decoration:none;">
+          saki.cho.uriryu@gmail.com
+        </a>
+      </p>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
